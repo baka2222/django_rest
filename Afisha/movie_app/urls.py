@@ -1,11 +1,11 @@
 from django.urls import path
-from .views import director_list, director, review_list, review, movie, movie_list
+from . import views
 
 urlpatterns = [
-    path('api/v1/directors/', director_list),
-    # path('api/v1/director/<int:id>/', director),
-    path('api/v1/movies/reviews/', movie_list),
-    # path('api/v1/movie/<int:id>/', movie),
-    # path('api/v1/review_list/', review_list),
-    # path('api/v1/review/<int:id>/', review)
+    path('api/v1/directors/', views.directors),
+    path('api/v1/directors/<int:id>/', views.directors_detail),
+    path('api/v1/movies/', views.movies),
+    path('api/v1/movies/<int:id>/', views.movies_detail),
+    path('api/v1/reviews/', views.reviews),
+    path('api/v1/reviews/<int:id>/', views.reviews_detail)
 ]
