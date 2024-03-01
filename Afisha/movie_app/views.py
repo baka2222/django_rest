@@ -2,7 +2,12 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .serializers import DirectorSerializer, MovieSerializer, RewievSerializer
+from .serializers import (DirectorSerializer,
+                          MovieSerializer,
+                          RewievSerializer,
+                          DirectorValidationSerializer,
+                          MovieValidationSerializer,
+                          ReviewValidationSerializer)
 from .models import Director, Movie, Review
 
 
@@ -13,11 +18,11 @@ def directors(request):
         directors_data = DirectorSerializer(Director.objects.all(), many=True).data
         return Response(data=directors_data)
     elif request.method == 'POST':
-        try:
-            Director.objects.create(**request.data)
-        except:
-            return Response(data={'message': 'Произошла ошибка. Повторите попытку позже'})
-        return Response(data={'message': 'Успешное сохранение'})
+        data = DirectorValidationSerializer(data=request.data)
+        if not data.is_valid():
+            return Response(data={'errors': data.errors})
+        Director.objects.create(**request.data)
+        return Response(data=data)
 
 
 @api_view(['PUT', 'DELETE', 'GET'])
@@ -37,9 +42,12 @@ def directors_detail(request, id):
         return Response(data={'message': 'Успешное сохранение'})
 
     elif request.method == 'PUT':
+        data = DirectorValidationSerializer(data=request.data)
+        if not data.is_valid():
+            return Response(data={'errors': data.errors})
         obj.name = request.data['name']
         obj.save()
-        return Response(data={'message': 'Успешное изменение'})
+        return Response(data=DirectorSerializer(data=Director.objects.filter(name=request.data['name'])))
 
 
 #Фильмы
@@ -49,11 +57,11 @@ def movies(request):
         data = MovieSerializer(Movie.objects.all(), many=True).data
         return Response(data=data)
     elif request.method == 'POST':
-        try:
-            Movie.objects.create(**request.data)
-        except:
-            return Response(data={'message': 'Произошла ошибка. Повторите попытку позже'})
-        return Response(data={'message': 'Успешное добавление'})
+        data = MovieValidationSerializer(data=request.data)
+        if not data.is_valid():
+            return Response(data={'errors': data.errors})
+        Movie.objects.create(**request.data)
+        return Response(data=data)
 
 
 @api_view(['PUT', 'DELETE', 'GET'])
@@ -68,12 +76,15 @@ def movies_detail(request, id):
         return Response(data=MovieSerializer(obj).data)
 
     elif request.method == 'PUT':
+        data = MovieValidationSerializer(data=request.data)
+        if not data.is_valid():
+            return Response(data={'errors': data.errors})
         obj.title = request.data['title']
         obj.description = request.data['description']
         obj.duration = request.data['duration']
         obj.director = request.data['director']
         obj.save()
-        return Response(data={'message': 'Изменено успешно'})
+        return Response(data=MovieSerializer(data=request.data))
 
     elif request.method == 'DELETE':
         obj.delete()
@@ -87,11 +98,14 @@ def reviews(request):
         data = RewievSerializer(Review.objects.all(), many=True).data
         return Response(data=data)
     elif request.method == 'POST':
+        data = ReviewValidationSerializer(data=request.data)
+        if not data.is_valid():
+            return Response(data={'errors': data.errors})
         try:
-            Movie.objects.create(**request.data)
+            Review.objects.create(**request.data)
         except:
             return Response(data={'message': 'Произошла ошибка. Повторите попытку позже'})
-        return Response(data={'message': 'Успешное добавление'})
+        return Response(data=RewievSerializer(data=request.data))
 
 
 @api_view(['GET', 'DELETE', 'PUT'])
@@ -106,6 +120,9 @@ def reviews_detail(request, id):
         return Response(data=RewievSerializer(obj).data)
 
     elif request.method == 'PUT':
+        data = ReviewValidationSerializer(data=request.data)
+        if not data.is_valid():
+            return Response(data={'errors': data.errors})
         obj.text = request.data['text']
         obj.movie = request.data['movie']
         obj.stars = request.data['stars']
