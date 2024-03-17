@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 from dotenv import load_dotenv
 load_dotenv()
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = 'django-insecure-pfgqs(k=g_f=o-wxx9)fr#s4l_v92=kna##j0ql2*ep&d4gx2i'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 if os.environ.get("DEBUG")=='on':
